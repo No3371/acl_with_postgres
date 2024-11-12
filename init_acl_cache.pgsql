@@ -180,7 +180,6 @@ CREATE TRIGGER clear_all_permission_cache
     FOR EACH STATEMENT
     EXECUTE FUNCTION trigger_clear_all_permission_cache();
 
--- Modified check_permission function that uses cache
 CREATE OR REPLACE FUNCTION check_permission_cached(
     p_user_id BIGINT,
     p_permission TEXT,

@@ -57,6 +57,19 @@ $$ LANGUAGE plpgsql;
 -- Create the trigger
 DROP TRIGGER IF EXISTS rebuild_perm_tree_trigger ON perm;
 CREATE TRIGGER rebuild_perm_tree_trigger
-    AFTER INSERT OR UPDATE OR DELETE ON perm
+    AFTER INSERT OR DELETE ON perm
     FOR EACH STATEMENT
     EXECUTE FUNCTION trigger_rebuild_perm_tree();
+
+
+CREATE OR REPLACE FUNCTION prevent_perm_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Permissions are suppoesd to be immutable to prevent hierachy corruption. Delete and Insert instead.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_perm_update_trigger
+    BEFORE UPDATE ON perm
+    FOR EACH ROW
+    EXECUTE FUNCTION prevent_perm_update();

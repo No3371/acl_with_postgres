@@ -101,6 +101,6 @@ BEGIN
 
     UPDATE permission_cache SET cached_at = now() - '1 day'::interval;
 
-    RETURN NEXT is((SELECT check_permission_cached(1, 'market/create', 0)), false, 'market/create: true (outdated and recached)');
+    RETURN NEXT is((SELECT check_permission_cached(1, 'market/create', 0)), true, 'market/create: true (outdated and recached)');
 END;
 $$ LANGUAGE plpgsql;

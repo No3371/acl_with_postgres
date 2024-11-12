@@ -1,7 +1,6 @@
 CREATE TABLE "perm" (
     perm_id BIGSERIAL PRIMARY KEY,
     permission TEXT NOT NULL,
-    default_state BOOLEAN DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
   	UNIQUE (permission)
@@ -104,11 +103,6 @@ BEGIN
             v_partial_perm := substring(v_partial_perm, 1, char_length(v_partial_perm) - char_length(v_perm_parts[i]) - 1);
         END IF;
     END LOOP;
-    
-    -- If no explicit permission found, return the default state from the most specific permission
-    SELECT p.default_state INTO v_result
-    FROM perm p
-    WHERE p.permission = p_permission;
     
     RETURN COALESCE(v_result, FALSE);
 END;

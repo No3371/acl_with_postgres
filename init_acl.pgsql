@@ -106,7 +106,8 @@ BEGIN
     
     RETURN COALESCE(v_result, FALSE);
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql
+   SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_perm_id (permission TEXT)
     RETURNS BIGINT

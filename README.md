@@ -27,9 +27,17 @@ Role permissions, User permissions and the cache tables are partitioned by permi
 
 #### check_permission_cached (p_user_id BIGINT, p_permission TEXT, p_scope BIGINT)
 
+## PostgREST
+
+The system is supposed to be used internally. It can be paired with [PostgREST](https://github.com/PostgREST/postgrest) to be served as an independent RESTful service.
+
+Executing statements from `init_postgrest.pgsql` will prepare the `acl` schema, all functions and most of the tables to be accessible by a nologin user `web_anon`.
+
+NOTE: To make this works, all the init statements must be performed in `acl` schema.
+
 ## Tests
 
-PgTap tests are performed with [PgTap](https://pgtap.org).
+Unit tests are performed with [PgTap](https://pgtap.org).
 
 To run the tests with PgTap installed, query `SELECT * FROM runtests('pgtap_test_acl');`.
 

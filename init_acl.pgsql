@@ -112,14 +112,12 @@ CREATE OR REPLACE FUNCTION get_perm_id (permission TEXT)
     RETURNS BIGINT
     LANGUAGE SQL
 BEGIN ATOMIC
-    SELECT perm_id FROM perm WHERE permission = $1
-    RETURNING perm_id
+    RETURN (SELECT perm_id FROM perm WHERE permission = $1);
 END;
 CREATE OR REPLACE FUNCTION get_role_id (role_name TEXT)
     RETURNS BIGINT
     LANGUAGE SQL
 BEGIN ATOMIC
-    SELECT role_id FROM role WHERE role_name = $1
-    RETURNING role_id
+    RETURN (SELECT role_id FROM "role" WHERE role_name = $1);
 END;
 

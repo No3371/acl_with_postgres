@@ -1,7 +1,9 @@
+DROP TABLE IF EXISTS "perm_tree";
 CREATE TABLE "perm_tree" (
-    perm_id BIGINT PRIMARY KEY REFERENCES "perm"(perm_id) ON DELETE CASCADE,
-    parent_perm_id BIGINT REFERENCES "perm"(perm_id) ON DELETE RESTRICT, CHECK (parent_perm_id is distinct from perm_id)
+    perm_id BIGINT PRIMARY KEY,
+    parent_perm_id BIGINT, CHECK (parent_perm_id is distinct from perm_id)
 );
+-- Foreign keys are not required because the whole table gets rebuilt on perm change
 
 -- Function to find parent permission ID
 CREATE OR REPLACE FUNCTION find_parent_permission(p_permission TEXT) 

@@ -1,9 +1,10 @@
+DROP TABLE IF EXISTS "permission_cache";
 -- Create unlogged cache table
 CREATE UNLOGGED TABLE "permission_cache" (
     user_id BIGINT NOT NULL,
     permission TEXT NOT NULL,
     scope BIGINT NOT NULL,
-    result BOOLEAN NOT NULL,
+    state BOOLEAN NOT NULL,
     cached_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, permission, scope)
 ) PARTITION BY LIST (permission);
@@ -160,21 +161,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create triggers
+DROP TRIGGER IF EXISTS clear_user_perm_cache ON user_perm;
 CREATE TRIGGER clear_user_perm_cache
     AFTER INSERT OR UPDATE OR DELETE ON user_perm
     FOR EACH ROW
     EXECUTE FUNCTION trigger_clear_user_perm_cache();
 
+DROP TRIGGER IF EXISTS clear_role_perm_cache ON role_perm;
 CREATE TRIGGER clear_role_perm_cache
     AFTER INSERT OR UPDATE OR DELETE ON role_perm
     FOR EACH ROW
     EXECUTE FUNCTION trigger_clear_role_perm_cache();
 
+DROP TRIGGER IF EXISTS clear_user_role_cache ON user_role;
 CREATE TRIGGER clear_user_role_cache
     AFTER INSERT OR UPDATE OR DELETE ON user_role
     FOR EACH ROW
     EXECUTE FUNCTION trigger_clear_user_role_cache();
 
+DROP TRIGGER IF EXISTS clear_all_permission_cache ON perm_tree;
 CREATE TRIGGER clear_all_permission_cache
     AFTER INSERT OR UPDATE OR DELETE ON perm_tree
     FOR EACH STATEMENT
@@ -186,32 +191,32 @@ CREATE OR REPLACE FUNCTION check_permission_cached(
     p_scope BIGINT
 ) RETURNS BOOLEAN AS $$
 DECLARE
-    v_result BOOLEAN;
-    v_cached_result BOOLEAN;
+    v_state BOOLEAN;
+    v_cached_state BOOLEAN;
     v_perm_parts TEXT[];
     v_partial_perm TEXT;
     i INTEGER;
 BEGIN    
     -- Check cache first
-    SELECT result INTO v_cached_result
+    SELECT state INTO v_cached_state
     FROM permission_cache
     WHERE user_id = p_user_id
       AND permission = p_permission
       AND scope = p_scope
       AND cached_at > NOW() - INTERVAL '1 hour';
       
-    IF v_cached_result IS NOT NULL THEN
-        RETURN v_cached_result;
+    IF v_cached_state IS NOT NULL THEN
+        RETURN v_cached_state;
     END IF;
 
-    SELECT check_permission($1, $2, $3) INTO v_result;
+    SELECT check_permission($1, $2, $3) INTO v_state;
     
-    -- Cache and return final result
-    INSERT INTO permission_cache (user_id, permission, scope, result)
-    VALUES (p_user_id, p_permission, p_scope, v_result)
-    ON CONFLICT DO UPDATE SET result = v_result,
+    -- Cache and return final state
+    INSERT INTO permission_cache (user_id, permission, scope, state)
+    VALUES (p_user_id, p_permission, p_scope, v_state)
+    ON CONFLICT (user_id, permission, scope) DO UPDATE SET state = v_state,
                               cached_at = NOW();
     
-    RETURN v_result;
+    RETURN v_state;
 END;
 $$ LANGUAGE plpgsql;

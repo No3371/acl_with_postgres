@@ -29,4 +29,8 @@ Role permissions, User permissions and the cache tables are partitioned by permi
 
 ## Tests
 
-PgTap tests are WIP.
+PgTap tests are performed with [PgTap](https://pgtap.org).
+
+To run the tests with PgTap installed, query `SELECT * FROM runtests('pgtap_test_acl');`.
+
+For details of tests please refer to `pgtap_acl.pgsql`.

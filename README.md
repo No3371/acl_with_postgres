@@ -7,7 +7,7 @@ The goal of the project is an ACL system fully packed inside a Postgres database
 ## Design
 
 ### Hierachical
-Permissions are in tree structure like `manage`, `manage/create`. When assigned with only `manage`: true, all `manage/**` permissions are considered true unless otherwise specified. 
+Permissions are in tree structure like `manage`, `manage/create`. When assigned with only `manage`: true, all `manage/**` permissions are considered true unless otherwise specified; When a permission is not assigned or assgined with NULL, parent permission value is used. By default, unassigned permissions or ones without a parent are considered false.
 
 ### Role-based
 Permissions are assigned to roles. Roles are assigned to users. Users can also be assigned with individual permissions that take priority over role permissions.

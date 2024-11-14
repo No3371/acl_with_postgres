@@ -7,7 +7,7 @@ CREATE TABLE "perm" (
 );
 
 CREATE TABLE "user" (
-    user_id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT PRIMARY KEY,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 

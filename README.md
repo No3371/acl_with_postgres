@@ -23,9 +23,46 @@ Role permissions, User permissions and the cache tables are partitioned by permi
 
 ## Usage
 
+### Functions
+
 #### check_permission(p_user_id BIGINT, p_permission TEXT, p_scope BIGINT)
 
+The function performs hierachy lookup to determine whether the user owns the permission. It first checks individual permissions assigned to the user, then checks permissions come with assigned roles.
+
+If a child permission is not assigned or assigned with NULL, it'll check against parent permission until a value is found or reaching the hierachy root.
+
 #### check_permission_cached (p_user_id BIGINT, p_permission TEXT, p_scope BIGINT)
+
+This function wraps around `check_permission` automatically caches the result. Built-in cache can be entirely skipped by avoiding this function.
+
+### Tables
+
+#### user(user_id BIGINT)
+
+INSERT/UPDATE/DELETE against this table to manage users.
+
+#### role(role_name TEXT, priority INT)
+
+INSERT/UPDATE/DELETE against this table to manage roles.
+
+#### perm(permission TEXT)
+
+INSERT/DELETE against this table to manage permissions. UPDATE is not allowed to prevent un-expected hierachy change.
+
+Upon any change, `perm_tree` table is rebuilt. Permission hierachy is solely determined by the "permission" column. For example, All permission named `manage/*` are always children of `manage`.
+
+#### user_role(user_id BIGINT, role_id BIGINT)
+
+INSERT/UPDATE/DELETE against this table to assign roles to users.
+
+#### role_perm(role_id BIGINT, perm_id BIGINT, scope BIGINT, state BOOLEAN)
+
+INSERT/UPDATE/DELETE against this table to assign permissions to roles.
+
+#### user_perm(user_id BIGINT, perm_id BIGINT, scope BIGINT, state BOOLEAN)
+
+INSERT/UPDATE/DELETE against this table to assign individual permissions to users. User permissions take priority over role permissions.
+
 
 ## PostgREST
 

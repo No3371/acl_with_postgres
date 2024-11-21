@@ -3,13 +3,25 @@ CREATE TABLE "perm" (
     permission TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  	UNIQUE (permission)
+    UNIQUE (permission)
 );
 
 CREATE TABLE "user" (
     user_id BIGINT PRIMARY KEY,
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+) PARTITION BY HASH (user_id);
+
+-- Create 10 partitions for user table (0-9)
+CREATE TABLE user_p0 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 0);
+CREATE TABLE user_p1 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 1);
+CREATE TABLE user_p2 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 2);
+CREATE TABLE user_p3 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 3);
+CREATE TABLE user_p4 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 4);
+CREATE TABLE user_p5 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 5);
+CREATE TABLE user_p6 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 6);
+CREATE TABLE user_p7 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 7);
+CREATE TABLE user_p8 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 8);
+CREATE TABLE user_p9 PARTITION OF "user" FOR VALUES WITH (modulus 10, remainder 9);
 
 CREATE TABLE "role" (
     role_id BIGSERIAL PRIMARY KEY,
@@ -17,7 +29,19 @@ CREATE TABLE "role" (
     priority INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
+) PARTITION BY HASH (role_id);
+
+-- Create 10 partitions for role table (0-9)
+CREATE TABLE role_p0 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 0);
+CREATE TABLE role_p1 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 1);
+CREATE TABLE role_p2 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 2);
+CREATE TABLE role_p3 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 3);
+CREATE TABLE role_p4 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 4);
+CREATE TABLE role_p5 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 5);
+CREATE TABLE role_p6 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 6);
+CREATE TABLE role_p7 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 7);
+CREATE TABLE role_p8 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 8);
+CREATE TABLE role_p9 PARTITION OF "role" FOR VALUES WITH (modulus 10, remainder 9);
 
 DROP TABLE IF EXISTS role_perm CASCADE;
 DROP TABLE IF EXISTS user_perm CASCADE;
@@ -115,10 +139,10 @@ CREATE OR REPLACE FUNCTION get_perm_id (permission TEXT)
 BEGIN ATOMIC
     RETURN (SELECT perm_id FROM perm WHERE permission = $1);
 END;
+
 CREATE OR REPLACE FUNCTION get_role_id (role_name TEXT)
     RETURNS BIGINT
     LANGUAGE SQL
 BEGIN ATOMIC
     RETURN (SELECT role_id FROM "role" WHERE role_name = $1);
 END;
-

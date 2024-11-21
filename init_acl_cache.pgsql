@@ -1,6 +1,6 @@
 DROP TABLE IF EXISTS "permission_cache";
 -- Create unlogged cache table
-CREATE UNLOGGED TABLE "permission_cache" (
+CREATE TABLE "permission_cache" (
     user_id BIGINT NOT NULL,
     permission TEXT NOT NULL,
     scope BIGINT NOT NULL,
@@ -91,35 +91,73 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to clear cache for specific user
-CREATE OR REPLACE FUNCTION clear_user_permission_cache(p_user_id BIGINT) 
+-- Function to clear specific permission and its sub-permissions from cache
+CREATE OR REPLACE FUNCTION clear_permission_cache(p_permission TEXT, p_user_id BIGINT DEFAULT NULL)
 RETURNS VOID AS $$
 BEGIN
-    DELETE FROM permission_cache WHERE user_id = p_user_id;
+    IF p_user_id IS NULL THEN
+        -- Clear for all users
+        DELETE FROM permission_cache 
+        WHERE permission = p_permission 
+           OR permission LIKE p_permission || '/%';
+    ELSE
+        -- Clear for specific user
+        DELETE FROM permission_cache 
+        WHERE user_id = p_user_id 
+          AND (permission = p_permission 
+               OR permission LIKE p_permission || '/%');
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
--- Function to clear cache for users with specific role
-CREATE OR REPLACE FUNCTION clear_role_permission_cache(p_role_id BIGINT) 
+-- Function to clear cache for specific user and permission
+CREATE OR REPLACE FUNCTION clear_user_permission_cache(p_user_id BIGINT, p_permission TEXT DEFAULT NULL) 
 RETURNS VOID AS $$
 BEGIN
-    DELETE FROM permission_cache 
-    WHERE user_id IN (
-        SELECT user_id 
-        FROM user_role 
-        WHERE role_id = p_role_id
-    );
+    IF p_permission IS NULL THEN
+        DELETE FROM permission_cache WHERE user_id = p_user_id;
+    ELSE
+        PERFORM clear_permission_cache(p_permission, p_user_id);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to clear cache for users with specific role and permission
+CREATE OR REPLACE FUNCTION clear_role_permission_cache(p_role_id BIGINT, p_permission TEXT DEFAULT NULL) 
+RETURNS VOID AS $$
+BEGIN
+    IF p_permission IS NULL THEN
+        DELETE FROM permission_cache 
+        WHERE user_id IN (
+            SELECT user_id 
+            FROM user_role 
+            WHERE role_id = p_role_id
+        );
+    ELSE
+        DELETE FROM permission_cache 
+        WHERE user_id IN (
+            SELECT user_id 
+            FROM user_role 
+            WHERE role_id = p_role_id
+        )
+        AND (permission = p_permission 
+             OR permission LIKE p_permission || '/%');
+    END IF;
 END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger function for user_perm changes
 CREATE OR REPLACE FUNCTION trigger_clear_user_perm_cache()
 RETURNS TRIGGER AS $$
+DECLARE
+    v_permission TEXT;
 BEGIN
     IF TG_OP = 'DELETE' THEN
-        PERFORM clear_user_permission_cache(OLD.user_id);
+        SELECT permission INTO v_permission FROM perm WHERE perm_id = OLD.perm_id;
+        PERFORM clear_user_permission_cache(OLD.user_id, v_permission);
     ELSE
-        PERFORM clear_user_permission_cache(NEW.user_id);
+        SELECT permission INTO v_permission FROM perm WHERE perm_id = NEW.perm_id;
+        PERFORM clear_user_permission_cache(NEW.user_id, v_permission);
     END IF;
     RETURN NULL;
 END;
@@ -128,11 +166,15 @@ $$ LANGUAGE plpgsql;
 -- Trigger function for role_perm changes
 CREATE OR REPLACE FUNCTION trigger_clear_role_perm_cache()
 RETURNS TRIGGER AS $$
+DECLARE
+    v_permission TEXT;
 BEGIN
     IF TG_OP = 'DELETE' THEN
-        PERFORM clear_role_permission_cache(OLD.role_id);
+        SELECT permission INTO v_permission FROM perm WHERE perm_id = OLD.perm_id;
+        PERFORM clear_role_permission_cache(OLD.role_id, v_permission);
     ELSE
-        PERFORM clear_role_permission_cache(NEW.role_id);
+        SELECT permission INTO v_permission FROM perm WHERE perm_id = NEW.perm_id;
+        PERFORM clear_role_permission_cache(NEW.role_id, v_permission);
     END IF;
     RETURN NULL;
 END;

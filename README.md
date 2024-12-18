@@ -23,6 +23,9 @@ Role permissions, User permissions and the cache tables are partitioned by permi
 
 ## Usage
 
+### Idiomatic Example
+![image](https://github.com/user-attachments/assets/58f6f2b3-0194-433e-a09a-f8b9a440c970)
+
 ### Functions
 
 #### check_permission(p_user_id BIGINT, p_permission TEXT, p_scope BIGINT)

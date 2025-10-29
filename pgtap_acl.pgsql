@@ -10,7 +10,12 @@ BEGIN
     INSERT INTO "user" (user_id) VALUES (1);
     INSERT INTO "role" (role_name, priority) VALUES ('market_owner', 100), ('moderator', 50), ('default', 0);
     INSERT INTO perm (permission) VALUES ('market'), ('market/create'), ('market/modify'), ('market/delete'), ('market/event');
-    INSERT INTO perm (permission) VALUES ('market/asset'), ('market/asset/create'), ('market/asset/modify'), ('market/asset/delete'), ('market/asset/event');
+    INSERT INTO perm (permission)
+    VALUES ('market/asset'),
+           ('market/asset/create'),
+           ('market/asset/modify'),
+           ('market/asset/delete'),
+           ('market/asset/event');
     INSERT INTO perm (permission) VALUES ('market/trade');
     INSERT INTO perm (permission) VALUES ('user_privilege');
     

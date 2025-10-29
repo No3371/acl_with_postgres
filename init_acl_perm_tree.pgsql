@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS "perm_tree";
 CREATE TABLE "perm_tree" (
     perm_id BIGINT PRIMARY KEY,
     parent_perm_id BIGINT, CHECK (parent_perm_id is distinct from perm_id)
@@ -20,7 +19,7 @@ BEGIN
         RETURN NULL;
     END IF;
     
-    -- Get the parent permission string (everything before the last slash)
+    -- Get the parent permission id
     SELECT perm_id INTO v_parent_id
     FROM perm
     WHERE permission = substring(p_permission, 1, length(p_permission) - v_last_slash)
@@ -63,7 +62,6 @@ CREATE TRIGGER rebuild_perm_tree_trigger
     FOR EACH STATEMENT
     EXECUTE FUNCTION trigger_rebuild_perm_tree();
 
-
 CREATE OR REPLACE FUNCTION prevent_perm_update()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -73,5 +71,5 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER prevent_perm_update_trigger
     BEFORE UPDATE ON perm
-    FOR EACH ROW
+    FOR EACH STATEMENT
     EXECUTE FUNCTION prevent_perm_update();

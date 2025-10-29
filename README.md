@@ -18,9 +18,6 @@ Multiple permissions with same name can be assigned to users/roles given differe
 ### Built-in Cache
 The result of query for (user_id, permission, scope) is cached to an unlogged table. Cached rows are outdated after 1 hour, or updated on change in related upstream rows. The cached rows are not getting deleted by the system, `pg_cron` may be required to clean the table.
 
-### Partitioned
-Role permissions, User permissions and the cache tables are partitioned by permission name to minimize overhead with high amount of roles and users.
-
 ## Usage
 
 ### Functions

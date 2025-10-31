@@ -11,15 +11,17 @@
 \set ON_ERROR_ROLLBACK 1
 \set ON_ERROR_STOP true
 
+SET search_path = acl, pgtap;
+
 -- Load the TAP functions.
 BEGIN;
-\i pgtap.sql
+-- \i pgtap.sql
 
 -- Plan the tests.
-SELECT plan(1);
+-- SELECT plan(6);
 
 -- Run the tests.
-SELECT * FROM runtests();
+SELECT * FROM runtests('acl'::name, '^pgtap_test');
 
 -- Finish the tests and clean up.
 SELECT * FROM finish();

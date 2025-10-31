@@ -1,2 +1,0 @@
-CREATE EXTENSION plpgsql_check;
-CREATE EXTENSION pgtap;

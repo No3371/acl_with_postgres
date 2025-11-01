@@ -30,6 +30,8 @@ CREATE TABLE role_perm (
     PRIMARY KEY (role_id, scope, perm_id)
 );
 
+CREATE INDEX ON role_perm (scope, perm_id);
+
 CREATE TABLE user_perm (
     user_id BIGINT NOT NULL REFERENCES "user"(user_id) ON DELETE CASCADE,
     scope BIGINT,
@@ -38,6 +40,8 @@ CREATE TABLE user_perm (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, scope, perm_id)
 );
+
+CREATE INDEX ON user_perm (scope, perm_id);
 
 CREATE TABLE user_role (
     user_id BIGINT NOT NULL REFERENCES "user"(user_id) ON DELETE CASCADE,

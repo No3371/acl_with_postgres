@@ -11,6 +11,8 @@ The system also allows you to assign permissions to individual users or to roles
 
 When checking permission for a user, it first checks if the user is assigned with the specified permission, if so, it just returns the state of the assigned permission; Otherwise it trys to gets the permission state from the role assigned with the permission with the highest priorty assigned to the user.
 
-Additionally, permissions are scoped. Scopes are just identifiers. YOu can have multiple identical permissions assigned with different scope values. The simplist way to use scope is use it to differentiate resources you want to have access control over.
+Additionally, permissions can be scoped. Scopes are just identifiers, you can have multiple identical permissions assigned with different scope values. The simplist way to use scope is use it to differentiate resources you want to have access control over.
 
 There's no function designed for writing permissions, in order to make changes you just INSERT or UPDATE these tables: `perm`, `user`, `role`, `role_perm`, `user_perm`, `user_role`. Noted that you can not assign permissions with `NULL` state; on the other hand, when you get a `NULL` when you check for permission, you can be sure it means not assigned.
+
+Overall, this is inspired by and very similar to Discord's permission model. The core difference is Discord associates resource directly with users/roles, therefore (I assume) the permission lookup starts with associated users/roles, in other words, Discord's permission is scoped at user/role level.

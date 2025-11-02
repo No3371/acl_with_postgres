@@ -3,22 +3,22 @@ SET search_path = acl;
 CREATE TABLE perm (
     perm_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     permission TEXT NOT NULL CHECK (permission <> ''),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE (permission)
 );
 
 CREATE TABLE "user" (
     user_id BIGINT PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE "role" (
     role_id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     role_name TEXT NOT NULL,
     priority INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE role_perm (
@@ -26,7 +26,7 @@ CREATE TABLE role_perm (
     scope BIGINT,
     perm_id BIGINT NOT NULL REFERENCES "perm"(perm_id) ON DELETE CASCADE,
     "state" BOOLEAN,
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (role_id, scope, perm_id)
 );
 
@@ -37,7 +37,7 @@ CREATE TABLE user_perm (
     scope BIGINT,
     perm_id BIGINT NOT NULL REFERENCES "perm"(perm_id) ON DELETE CASCADE,
     "state" BOOLEAN,
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, scope, perm_id)
 );
 
@@ -46,7 +46,7 @@ CREATE INDEX ON user_perm (scope, perm_id);
 CREATE TABLE user_role (
     user_id BIGINT NOT NULL REFERENCES "user"(user_id) ON DELETE CASCADE,
     role_id BIGINT NOT NULL REFERENCES "role"(role_id) ON DELETE CASCADE,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, role_id)
 );
 

@@ -8,7 +8,7 @@ CREATE TABLE "perm_cache" (
     permission TEXT NOT NULL,
     perm_id BIGINT NOT NULL,
     state BOOLEAN,
-    cached_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    cached_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, scope, permission)
 );
 

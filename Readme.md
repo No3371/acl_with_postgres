@@ -1,7 +1,7 @@
-## `check_permission_cached(user_id BIGINT, scope BIGINT, permission TEXT, ttl_seconds BIGINT DEFAULT 3600)`
-Returns resolved-and-cached permission for the user and the scope. If the permission for the scope is not cached, automatically calls check_permission(...) and cache the value before returning it.
+## `acl_check_perm_cached(user_id BIGINT, scope BIGINT, permission TEXT, ttl_seconds BIGINT DEFAULT 3600)`
+Returns resolved-and-cached permission for the user and the scope. If the permission for the scope is not cached, automatically calls acl_check_perm(...) and cache the value before returning it.
 
-## `check_permission(user_id BIGINT, scope BIGINT, permission TEXT)`
+## `acl_check_perm(user_id BIGINT, scope BIGINT, permission TEXT)`
 Resolve the permission assigned to the user for the scope.
 Permissions are resolved hierachically, for example when checking `user/create`, it first trys to get the state of `user/create` assigned to the user, and returns it if it's found, or it moves on to check the state of `user` assigned to the user.
 
